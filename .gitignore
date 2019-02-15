@@ -1,1 +1,7 @@
 .env
+lib
+node_modules
+src-gen
+nohup.out
+yarn.lock
+webpack.config.js
