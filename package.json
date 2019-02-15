@@ -18,6 +18,7 @@
         "@theia/navigator": "next",
         "@theia/outline-view": "next",
         "@theia/php": "next",
+        "@theia/python": "next",
         "@theia/output": "next",
         "@theia/preferences": "next",
         "@theia/process": "next",

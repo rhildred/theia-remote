@@ -9,6 +9,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
     && apt update \
     && apt install -y --no-install-recommends php7.2 \
     && apt install -y --no-install-recommends php7.2-cli php7.2-curl php7.2-json php7.2-mbstring \
+    && apt install -y --no-install-recommends python-dev python-pip python3 python3-pip \
     && curl -s -o composer-setup.php https://getcomposer.org/installer \
     && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
     && rm composer-setup.php \
@@ -21,6 +22,14 @@ RUN adduser --disabled-password --gecos '' theia \
     && mkdir -p /home/project \
     && chown -R theia:theia /home/theia \
     && chown -R theia:theia /home/project
+
+RUN pip install -U setuptools \
+    && pip install \
+    python-language-server[all] \
+    flake8 \
+    autopep8 \
+    futures
+
 
 USER theia
 
