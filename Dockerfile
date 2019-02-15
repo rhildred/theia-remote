@@ -1,4 +1,4 @@
-FROM node:8-jessie-slim
+FROM starefossen/ruby-node:latest
 
 ENV TZ=america/toronto
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
@@ -30,6 +30,14 @@ RUN pip install -U setuptools \
     autopep8 \
     futures
 
+ENV GEM_HOME /usr/local/bundle
+ENV BUNDLE_PATH="$GEM_HOME" \
+	BUNDLE_SILENCE_ROOT_WARNING=1 \
+	BUNDLE_APP_CONFIG="$GEM_HOME"
+# path recommendation: https://github.com/bundler/bundler/pull/6469#issuecomment-383235438
+ENV PATH $GEM_HOME/bin:$BUNDLE_PATH/gems/bin:$PATH
+# adjust permissions of a few directories for running "gem install" as an arbitrary user
+RUN mkdir -p "$GEM_HOME" && chmod 777 "$GEM_HOME" && gem install bundler jekyll && chmod -R 777 "$GEM_HOME"
 
 USER theia
 
@@ -41,4 +49,3 @@ RUN yarn --cache-folder ./ycache \
     && NODE_OPTIONS="--max_old_space_size=4096" yarn theia build
 
 ENV SHELL /bin/bash
-
