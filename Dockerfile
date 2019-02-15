@@ -1,6 +1,6 @@
 FROM node:8-jessie-slim
 
-ENV TZ=Europe/Bratislava
+ENV TZ=america/toronto
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
     && apt-get update && apt-get -y --no-install-recommends install curl xz-utils wget git python build-essential \
     && apt install -y --no-install-recommends ca-certificates apt-transport-https \
@@ -31,8 +31,5 @@ RUN yarn --cache-folder ./ycache \
     && rm -rf ./ycache \
     && NODE_OPTIONS="--max_old_space_size=4096" yarn theia build
 
-EXPOSE 3000
 ENV SHELL /bin/bash
-
-ENTRYPOINT [ "yarn", "theia", "start", "/home/project", "--hostname=0.0.0.0" ]
 
