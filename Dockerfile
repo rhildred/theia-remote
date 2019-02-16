@@ -2,8 +2,8 @@ FROM starefossen/ruby-node:latest
 
 ENV TZ=america/toronto
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
-    && apt-get update && apt-get -y --no-install-recommends install curl xz-utils wget git python build-essential \
-    && apt install -y --no-install-recommends ca-certificates apt-transport-https \
+    && apt-get update && apt-get -y --no-install-recommends install curl xz-utils wget git python build-essential unzip \
+    && apt install -y --no-install-recommends ca-certificates apt-transport-https openjdk-8-jdk \
     && wget -q https://packages.sury.org/php/apt.gpg -O- | apt-key add - \
     && echo "deb https://packages.sury.org/php/ jessie main" | tee /etc/apt/sources.list.d/php.list \
     && apt update \
@@ -63,6 +63,33 @@ ENV BUNDLE_PATH="$GEM_HOME" \
 ENV PATH $GEM_HOME/bin:$BUNDLE_PATH/gems/bin:$PATH
 # adjust permissions of a few directories for running "gem install" as an arbitrary user
 RUN mkdir -p "$GEM_HOME" && chmod 777 "$GEM_HOME" && gem install bundler jekyll && chmod -R 777 "$GEM_HOME"
+
+ENV GRADLE_HOME /opt/gradle
+ENV GRADLE_VERSION 5.2.1
+
+ARG GRADLE_DOWNLOAD_SHA256=748c33ff8d216736723be4037085b8dc342c6a0f309081acf682c9803e407357
+RUN set -o errexit -o nounset \
+    && echo "Downloading Gradle" \
+    && wget --no-verbose --output-document=gradle.zip "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
+    \
+    && echo "Checking download hash" \
+    && echo "${GRADLE_DOWNLOAD_SHA256} *gradle.zip" | sha256sum --check - \
+    \
+    && echo "Installing Gradle" \
+    && unzip gradle.zip \
+    && rm gradle.zip \
+    && mv "gradle-${GRADLE_VERSION}" "${GRADLE_HOME}/" \
+    && ln --symbolic "${GRADLE_HOME}/bin/gradle" /usr/bin/gradle \
+    \
+    && echo "Adding gradle user and group" \
+    && groupadd --system gradle \
+    && useradd --system --gid gradle --shell /bin/bash --create-home gradle \
+    && mkdir /home/gradle/.gradle \
+    && chown --recursive gradle:gradle /home/gradle \
+    \
+    && echo "Symlinking root Gradle cache to gradle Gradle cache" \
+    && ln -s /home/gradle/.gradle /root/.gradle
+
 
 USER theia
 
