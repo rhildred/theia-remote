@@ -100,4 +100,6 @@ RUN yarn --cache-folder ./ycache \
     && rm -rf ./ycache \
     && NODE_OPTIONS="--max_old_space_size=4096" yarn theia build
 
+ADD server.js ./src-gen/backend/server.js
+
 ENV SHELL /bin/bash
